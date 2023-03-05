@@ -1,0 +1,26 @@
+{
+  "name": "toned",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Toned": {
+        "$path": "./default.project.json"
+      },
+      "Packages": {
+        "$path": "DevPackages"
+      }
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Toned Examples": {
+          "$path": "examples"
+        }
+      }
+    }
+  }
+}

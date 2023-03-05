@@ -1,0 +1,44 @@
+site_name: Toned
+site_description: Toned documentation
+site_author: AstrealDev
+repo_url: https://github.com/astrealRBLX/Toned
+repo_name: Toned
+
+nav:
+  - Getting Started: index.md
+  - Tone Language: tonelang.md
+  - Internals: internals.md
+  - Special Keys:
+      - StyleSheet: stylesheets.md
+      - Attribute: attribute.md
+      - Ignore: ignore.md
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Light Mode
+      primary: deep orange
+      accent: amber
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Dark Mode
+      primary: deep orange
+      accent: amber
+  features:
+    - navigation.instant
+    - navigation.sections
+
+markdown_extensions:
+  - pymdownx.highlight:
+      linenums: false
+  - toc:
+      permalink: '#'
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed
+  - pymdownx.progressbar
+  - admonition

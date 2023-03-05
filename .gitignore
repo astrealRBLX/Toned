@@ -6,4 +6,7 @@
 /*.rbxl.lock
 
 # Wally files
-Packages
+DevPackages
+
+# Docs site
+site
