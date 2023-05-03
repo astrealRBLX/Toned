@@ -8,6 +8,6 @@
 
 return {
   StyleSheet = require(script.StyleSheet),
-  Attribute = require(script.Attribute),
+  Trait = require(script.Trait),
   Ignore = require(script.Ignore),
 }

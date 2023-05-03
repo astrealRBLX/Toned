@@ -18,7 +18,7 @@ return [[
     TextXAlignment: enum Left;
   }
 
-  // Use the % selector to grab an instance with a special attribute
+  // Use the % selector to grab an instance with a special trait
   // Parentheses can be used to capture a multi-word selection
   %(Red Background) {
     BackgroundColor3: #FF262A; // Support for hex codes too!

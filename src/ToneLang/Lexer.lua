@@ -77,9 +77,9 @@ function LexerClass:ScanToken()
   elseif char == '%' then
     if self:Peek() == '(' then
       self:Next()
-      self:ResolveAttributeSelection(true)
+      self:ResolveTraitSelection(true)
     else
-      self:ResolveAttributeSelection()
+      self:ResolveTraitSelection()
     end
   elseif char == '@' then
     if self:Peek() == '(' then
@@ -161,7 +161,7 @@ function LexerClass:Next()
   return self.character
 end
 
-function LexerClass:ResolveAttributeSelection(multiSelect: boolean?)
+function LexerClass:ResolveTraitSelection(multiSelect: boolean?)
   multiSelect = multiSelect or false
 
   if multiSelect then
@@ -179,7 +179,7 @@ function LexerClass:ResolveAttributeSelection(multiSelect: boolean?)
   end
 
   if multiSelect and self:IsFinished() then
-    warn('Unterminated instance attribute selection.')
+    warn('Unterminated instance trait selection.')
     return
   end
 

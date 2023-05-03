@@ -62,7 +62,7 @@ local function resolveContext(contextToken: ToneLangTypes.Token, context: table?
   return value
 end
 
-local function resolveAttributeValues(attr: string)
+local function resolveTraitValues(attr: string)
   return string.split(attr, ',')
 end
 
@@ -103,9 +103,9 @@ local function validateSimpleSelector(selectorToken: ToneLangTypes.Token, descen
   if (selectorToken.name == Tokens.NAME_SELECT and descendant.Name == selectorToken.value) or (selectorToken.name == Tokens.CLASS_SELECT and descendant.ClassName == selectorToken.value) then
     return true
   elseif selectorToken.name == Tokens.ATTR_SELECT then
-    local attr = descendant:GetAttribute('_TONED_ATTR')
+    local attr = descendant:GetAttribute('_TONED_TRAIT')
 
-    if attr and table.find(resolveAttributeValues(attr), selectorToken.value) then
+    if attr and table.find(resolveTraitValues(attr), selectorToken.value) then
       return true
     end
   end

@@ -17,7 +17,7 @@ local Fusion = require(Packages.Fusion)
 local Toned = require(ReplicatedStorage.Toned)
 
 local New, Children, Value, Cleanup, ForValues = Fusion.New, Fusion.Children, Fusion.Value, Fusion.Cleanup, Fusion.ForValues
-local StyleSheet, Attribute = Toned.StyleSheet, Toned.Attribute
+local StyleSheet, Trait = Toned.StyleSheet, Toned.Trait
 
 local player = Players.LocalPlayer
 
@@ -53,7 +53,7 @@ playerListGui = New 'ScreenGui' {
       New 'TextLabel' {
         Name = '$ListTitle',
 
-        [Attribute] = 'PlayerListTitle',
+        [Trait] = 'PlayerListTitle',
         [Children] = New 'TextButton' {
           Text = '<b>X</b>',
 
@@ -62,7 +62,7 @@ playerListGui = New 'ScreenGui' {
           end,
 
           [Children] = New 'UICorner' {
-            [Attribute] = 'LargeRadius',
+            [Trait] = 'LargeRadius',
           },
         }
       },
@@ -72,11 +72,11 @@ playerListGui = New 'ScreenGui' {
         return New 'TextLabel' {
           Text = '• ' .. plr.Name,
 
-          [Attribute] = 'PlayerLabel',
+          [Trait] = 'PlayerLabel',
           [Children] = {
             New 'UICorner' {},
             New 'UIPadding' {
-              [Attribute] = 'SmallPadding',
+              [Trait] = 'SmallPadding',
             },
           }
         }
