@@ -57,34 +57,6 @@ function Expr.Context(value: Types.Token): Types.ExprContext
   return this
 end
 
-
-function Expr.SimpleSelector(value: Types.Token): Types.ExprSimpleSelector
-  local this = setmetatable({
-    ID = 'Expr.SimpleSelector',
-    value = value,
-  }, {})
-
-  function this:accept(visitor)
-    return visitor:visitSimpleSelectorExpr(self)
-  end
-
-  return this
-end
-
-function Expr.AncestrySelector(parent: Types.ExprSimpleSelector, child: Types.ExprAncestrySelector | Types.ExprSimpleSelector): Types.ExprAncestrySelector
-  local this = setmetatable({
-    ID = 'Expr.AncestrySelector',
-    parent = parent,
-    child = child,
-  }, {})
-
-  function this:accept(visitor)
-    return visitor:visitAncestrySelectorExpr(self)
-  end
-
-  return this
-end
-
 function Expr.Unary(op: Types.Token, right: Types.Expr): Types.ExprUnary
   local this = setmetatable({
     ID = 'Expr.Unary',

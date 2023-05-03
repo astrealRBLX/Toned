@@ -40,8 +40,8 @@ local function resolveListType(propType: string, list: { any })
   end
 end
 
-local function resolveEnumType(property: string, enumValue: ToneLangTypes.Token)
-  return Enum[property][enumValue.value]
+local function resolveEnumType(property: string, enumValue: ToneLangTypes.ExprEnum)
+  return Enum[property][enumValue.value.lexeme]
 end
 
 local function resolveContext(contextToken: ToneLangTypes.Token, context: table?)
@@ -81,10 +81,10 @@ local function applyAssignments(assignments: { [string]: any }, descendant: Inst
     end
 
     -- Value is a list; must resolve into Roblox type
-    if typeof(propValue) == 'table' and propValue.name == nil then
+    if typeof(propValue) == 'table' and propValue.name == nil and propValue.ID == nil then
       propValue = resolveListType(typeof(propertyValue), propValue)
     -- Value is an enum; must resolve into Roblox enum
-    elseif typeof(propValue) == 'table' and propValue.name == Tokens.ENUM then
+    elseif typeof(propValue) == 'table' and propValue.ID == 'Expr.Enum' then
       propValue = resolveEnumType(property, propValue)
     -- Value is context; must locate proper value
     elseif typeof(propValue) == 'table' and propValue.name == Tokens.CONTEXT then
@@ -99,13 +99,13 @@ local function applyAssignments(assignments: { [string]: any }, descendant: Inst
   end
 end
 
-local function validateSimpleSelector(selectorToken: ToneLangTypes.Token, descendant: Instance)
-  if (selectorToken.name == Tokens.NAME_SELECT and descendant.Name == selectorToken.value) or (selectorToken.name == Tokens.CLASS_SELECT and descendant.ClassName == selectorToken.value) then
+local function validateSimpleSelector(selector: ToneLangTypes.Select, descendant: Instance)
+  if (selector.ID == 'Select.Name' and descendant.Name == selector.value) or (selector.ID == 'Select.Class' and descendant.ClassName == selector.value) then
     return true
-  elseif selectorToken.name == Tokens.ATTR_SELECT then
+  elseif selector.ID == 'Select.Trait' then
     local attr = descendant:GetAttribute('_TONED_TRAIT')
 
-    if attr and table.find(resolveTraitValues(attr), selectorToken.value) then
+    if attr and table.find(resolveTraitValues(attr), selector.value) then
       return true
     end
   end
@@ -116,15 +116,15 @@ end
 local function validateAncestrySelector(activeTable: table, current: Instance)
   -- {[1] = PARENT, [2] = CHILD}
 
-  local parentToken: ToneLangTypes.Token = activeTable[1]
+  local parentSelector: ToneLangTypes.Select = activeTable[1]
   local childTable = activeTable[2]
 
-  if not validateSimpleSelector(parentToken, current) then
+  if not validateSimpleSelector(parentSelector, current) then
     return
   end
 
   for _, child in current:GetChildren() do
-    if childTable.name then
+    if childTable.ID then
       if validateSimpleSelector(childTable, child) then
         return child
       end
@@ -134,11 +134,11 @@ local function validateAncestrySelector(activeTable: table, current: Instance)
   end
 end
 
-local function validateSelectorTokens(selectorTokens: { ToneLangTypes.Token }, descendant: Instance, applyCallback: (toAssign: Instance) -> ())
-  for _, selectorToken: ToneLangTypes.Token in selectorTokens do
+local function validateSelectors(selectorTokens: { ToneLangTypes.Token }, descendant: Instance, applyCallback: (toAssign: Instance) -> ())
+  for _, selector: ToneLangTypes.Select in selectorTokens do
     -- Ancestry selector
-    if selectorToken.name == nil and #descendant:GetChildren() > 0 then
-      local toAssign = validateAncestrySelector(selectorToken, descendant)
+    if selector.ID == nil and #descendant:GetChildren() > 0 then
+      local toAssign = validateAncestrySelector(selector, descendant)
 
       if toAssign then
         applyCallback(toAssign)
@@ -148,7 +148,7 @@ local function validateSelectorTokens(selectorTokens: { ToneLangTypes.Token }, d
     end
 
     -- Simple selector
-    if validateSimpleSelector(selectorToken, descendant) then
+    if validateSimpleSelector(selector, descendant) then
       applyCallback(descendant)
     end
   end
@@ -170,7 +170,7 @@ function StyleSheet:apply(value: string, applyTo: Instance, cleanupTasks: table)
 
   for _, style in interpreter.styleSheet do
     for _, desc in applyTo:GetDescendants() do
-      validateSelectorTokens(style.selectors, desc, function(toAssign: Instance)
+      validateSelectors(style.selectors, desc, function(toAssign: Instance)
         applyAssignments(style.assignments, toAssign, self.context)
       end)
     end
@@ -179,7 +179,7 @@ function StyleSheet:apply(value: string, applyTo: Instance, cleanupTasks: table)
   local descendantAddedConn = applyTo.DescendantAdded:Connect(function()
     for _, style in interpreter.styleSheet do
       for _, desc in applyTo:GetDescendants() do
-        validateSelectorTokens(style.selectors, desc, function(toAssign: Instance)
+        validateSelectors(style.selectors, desc, function(toAssign: Instance)
           applyAssignments(style.assignments, toAssign, self.context)
         end)
       end

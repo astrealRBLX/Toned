@@ -75,21 +75,11 @@ function LexerClass:ScanToken()
   elseif char == ';' then
     self:AddToken(Tokens.SEMICOLON)
   elseif char == '%' then
-    if self:Peek() == '(' then
-      self:Next()
-      self:ResolveTraitSelection(true)
-    else
-      self:ResolveTraitSelection()
-    end
+    self:AddToken(Tokens.PERCENT)
   elseif char == '@' then
-    if self:Peek() == '(' then
-      self:Next()
-      self:ResolveNameSelection(true)
-    else
-      self:ResolveNameSelection()
-    end
+    self:AddToken(Tokens.AT)
   elseif char == '.' then
-    self:ResolveClassSelection()
+    self:AddToken(Tokens.DOT)
   elseif char == '/' then
     if self:Match('/') then
       while self:Peek() ~= '\n' and not self:IsFinished() do
@@ -110,6 +100,24 @@ function LexerClass:ScanToken()
     self:AddToken(Tokens.LEFT_BRACKET)
   elseif char == ']' then
     self:AddToken(Tokens.RIGHT_BRACKET)
+  elseif char == '(' then
+    while not self:IsFinished() and self:Peek() ~= ')' do
+      if self:Peek() == '\n' then
+        self.line += 1
+      end
+
+      self:Next()
+    end
+
+    self:Next()
+
+    self:AddToken(Tokens.CAPTURE_CLAUSE,
+      string.sub(
+        self.source,
+        self.start + 1,
+        self.position - 1
+      )
+    )
   elseif char == ',' then
     self:AddToken(Tokens.COMMA)
   elseif char == '>' then
@@ -327,12 +335,6 @@ function LexerClass:ResolveIdentifier()
 
   if token == nil then
     token = Tokens.IDENTIFIER
-  end
-
-  -- Handle enum
-  if #self.tokens > 1 and self.tokens[#self.tokens].name == Tokens.ENUM then
-    self.tokens[#self.tokens].value = text
-    return
   end
 
   self:AddToken(token)

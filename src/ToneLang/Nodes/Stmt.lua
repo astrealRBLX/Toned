@@ -17,7 +17,7 @@ function Stmt.Expression(expr: Types.Expr): Types.StmtExpr
   return this
 end
 
-function Stmt.Style(selectors: { Types.ExprSimpleSelector | Types.ExprAncestrySelector }, propDeclarations: { Types.StmtExpr }): Types.StmtStyle
+function Stmt.Style(selectors: { Types.SelectSimple | Types.SelectAncestry }, propDeclarations: { Types.StmtExpr }): Types.StmtStyle
   local this = setmetatable({
     ID = 'Stmt.Style',
     selectors = selectors,

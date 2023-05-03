@@ -6,6 +6,7 @@ export type Token = {
 }
 
 export type Expr = {
+  ID: string,
   accept: (exprSelf: any, visitor: any) -> any,
 }
 
@@ -16,15 +17,6 @@ export type ExprAssignment = Expr & {
 
 export type ExprLiteral = Expr & {
   value: any,
-}
-
-export type ExprSimpleSelector = Expr & {
-  value: Token,
-}
-
-export type ExprAncestrySelector = Expr & {
-  parent: ExprSimpleSelector,
-  child: ExprAncestrySelector | ExprSimpleSelector,
 }
 
 export type ExprUnary = Expr & {
@@ -41,6 +33,7 @@ export type ExprContext = Expr & {
 }
 
 export type Stmt = {
+  ID: string,
   accept: (stmtSelf: any, visitor: any) -> any,
 }
 
@@ -49,8 +42,28 @@ export type StmtExpr = Stmt & {
 }
 
 export type StmtStyle = Stmt & {
-  selectors: { ExprAncestrySelector | ExprSimpleSelector  },
+  selectors: { SelectAncestry | (SelectClass | SelectTrait | SelectName)  },
   propDeclarations: { PropDeclaration },
+}
+
+export type Select = {
+  ID: string,
+  accept: (selectSelf: any, visitor: any) -> any,
+}
+
+export type SelectSimple = Select & {
+  value: string,
+}
+
+export type SelectClass = SelectSimple
+
+export type SelectTrait = SelectSimple
+
+export type SelectName = SelectSimple
+
+export type SelectAncestry = Select & {
+  parent: SelectSimple,
+  child: SelectAncestry | SelectSimple
 }
 
 export type PropDeclaration = Expr & {

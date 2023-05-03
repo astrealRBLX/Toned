@@ -7,6 +7,7 @@ local Types = require(ToneLang.Types)
 local Tokens = require(ToneLang.Token).Tokens
 local Expr = require(ToneLang.Nodes.Expr)
 local Stmt = require(ToneLang.Nodes.Stmt)
+local Select = require(ToneLang.Nodes.Select)
 local MiscNode = require(ToneLang.Nodes.MiscNode)
 
 function Parser.new(tokens: { Types.Token })
@@ -22,6 +23,7 @@ function ParserClass:Parse()
   local statements: { Types.Stmt } = {}
 
   while not self:IsFinished() do
+    print(self:Current())
     table.insert(statements, self:Statement())
   end
 
@@ -29,7 +31,7 @@ function ParserClass:Parse()
 end
 
 function ParserClass:Statement()
-  if self:Match(Tokens.CLASS_SELECT, Tokens.ATTR_SELECT, Tokens.NAME_SELECT) then
+  if self:Match(Tokens.DOT, Tokens.PERCENT, Tokens.AT) then
     return self:StyleStatement()
   end
 
@@ -37,12 +39,11 @@ function ParserClass:Statement()
 end
 
 function ParserClass:StyleStatement()
-  local selectors: { Types.ExprAncestrySelector | Types.ExprSimpleSelector } = {
-    -- Expr.Selector(self:Previous()),
+  local selectors: { Types.SelectSimple | Types.SelectAncestry } = {
     self:Selector(),
   }
 
-  while self:Match(Tokens.CLASS_SELECT, Tokens.ATTR_SELECT, Tokens.NAME_SELECT) do
+  while self:Match(Tokens.DOT, Tokens.PERCENT, Tokens.AT) do
     table.insert(selectors, self:Selector())
   end
 
@@ -90,7 +91,7 @@ function ParserClass:PropDeclaration()
 end
 
 function ParserClass:Selector()
-  if self:Check(Tokens.GREATER_THAN) then
+  if self:Peek().name == Tokens.GREATER_THAN then
     return self:AncestrySelector()
   end
 
@@ -98,21 +99,41 @@ function ParserClass:Selector()
 end
 
 function ParserClass:SimpleSelector()
-  return Expr.SimpleSelector(self:Previous())
+  if self:Previous().name == Tokens.DOT and self:Check(Tokens.IDENTIFIER) then
+    return Select.Class(self:Next().lexeme)
+  elseif self:Previous().name == Tokens.PERCENT then
+    if self:Check(Tokens.IDENTIFIER) then
+      return Select.Trait(self:Next().lexeme)
+    elseif self:Check(Tokens.CAPTURE_CLAUSE) then
+      return Select.Trait(self:Next().value)
+    end
+  elseif self:Previous().name == Tokens.AT then
+    if self:Check(Tokens.IDENTIFIER) then
+      return Select.Name(self:Next().lexeme)
+    elseif self:Check(Tokens.CAPTURE_CLAUSE) then
+      return Select.Name(self:Next().value)
+    end
+  end
+  
+  error('Unrecognized selector')
 end
 
 function ParserClass:AncestrySelector()
-  local parentExpr = Expr.SimpleSelector(self:Previous())
+  local parentExpr = self:SimpleSelector()
 
   self:Consume(Tokens.GREATER_THAN, 'Expected \'>\' between selectors for ancestry selection.')
+  
+  if not self:Match(Tokens.DOT, Tokens.PERCENT, Tokens.AT) then
+    error('Expected a selector to follow \'>\'.')
+  end
 
-  local childExpr = Expr.SimpleSelector(self:Next())
+  local childExpr = self:SimpleSelector()
 
   if self:Check(Tokens.GREATER_THAN) then
     childExpr = self:AncestrySelector()
   end
 
-  return Expr.AncestrySelector(parentExpr, childExpr)
+  return Select.Ancestry(parentExpr, childExpr)
 end
 
 function ParserClass:Expression()
@@ -173,7 +194,7 @@ function ParserClass:Primary()
   end
 
   if self:Match(Tokens.ENUM) then
-    return Expr.Enum(self:Previous())
+    return Expr.Enum(self:Next())
   end
 
   if self:Match(Tokens.CONTEXT) then
@@ -226,6 +247,12 @@ function ParserClass:Next()
   end
 
   return self:Previous()
+end
+
+function ParserClass:Peek(): Types.Token
+  if not self:IsFinished() then
+    return self.tokens[self.position + 1]
+  end
 end
 
 return Parser

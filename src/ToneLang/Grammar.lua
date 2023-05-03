@@ -6,7 +6,7 @@
 
   statement         -> styleStatement | exprStatement ;
 
-  styleStatement    -> (simpleSelector | ancestrySelector)+ "{" propDeclaration* "}" ;
+  styleStatement    -> selector+ "{" propDeclaration* "}" ;
   exprStatement     -> expression ";" ;
 
   propDeclaration   -> IDENTIFIER ":" (unary | list | IDENTIFIER) ";" ;
@@ -17,17 +17,18 @@
 
   list              -> "[" unary ("," unary)* "]" ;
   unary             -> "-"? primary ;
-  primary           -> "true" | "false" | NUMBER | STRING | hexCode | enumeration | context;
+  primary           -> "true" | "false" | NUMBER | STRING | hexCode | enumeration | context ;
 
   hexCode           -> "#" IDENTIFIER ;
   enumeration       -> "enum" IDENTIFIER ;
   context           -> "$" IDENTIFIER ("." IDENTIFIER)* ;
 
-  ancestrySelector -> simpleSelector ">" (ancestrySelector | simpleSelector) ;
-  simpleSelector   -> classSelector | attrSelector | nameSelector ;
+  selector          -> simpleSelector | ancestrySelector ;
+  ancestrySelector  -> simpleSelector ">" (ancestrySelector | simpleSelector) ;
+  simpleSelector    -> classSelector | traitSelector | nameSelector ;
   classSelector     -> "." IDENTIFIER ;
   nameSelector      -> "@" (IDENTIFIER | captureClause) ;
-  attrSelector      -> "%" (IDENTIFIER | captureClause) ;
+  traitSelector     -> "%" (IDENTIFIER | captureClause) ;
   captureClause     -> "(" IDENTIFIER+ ")" ;
 
 ]]

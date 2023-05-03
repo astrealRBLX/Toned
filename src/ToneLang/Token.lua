@@ -18,24 +18,17 @@ return {
         end
 
         return str
-        
-        -- return t.name .. ' ' .. t.lexeme .. ' ' .. if t.value then t.value else ''
       end
     })
   end,
   Tokens = {
     -- Literals
-    IDENTIFIER        = 'ID',
-    NUMBER            = 'NUM',
-    STRING            = 'STR',
+    IDENTIFIER        = 'ID',       -- Identifier
+    NUMBER            = 'NUM',      -- 1.5
+    STRING            = 'STR',      -- "Hello World!"
     HEX               = 'HEX',      -- #FFFFFF
-    ENUM              = 'ENUM',     -- enum Center
     CONTEXT           = 'CONTEXT',  -- $Theme.Primary
-
-    -- Selectors
-    NAME_SELECT       = 'NAME',     -- @LoremIpsum or @(Lorem Ipsum)
-    ATTR_SELECT       = 'ATTR',     -- %LoremIpsum or %(Lorem Ipsum)
-    CLASS_SELECT      = 'CLASS',    -- .LoremIpsum
+    CAPTURE_CLAUSE    = 'CAPTURE',  -- (Hello World)
 
     -- Single-characters
     LEFT_BRACE        = 'LBRACE',
@@ -50,10 +43,14 @@ return {
     COMMA             = 'COMMA',
     MINUS             = 'MINUS',
     GREATER_THAN      = 'GTHAN',
+    AT                = 'AT',
+    PERCENT           = 'PERC',
+    DOT               = 'DOT',
 
     -- Keywords
     TRUE              = 'TRUE',     -- true
     FALSE             = 'FALSE',    -- false
     VAR               = 'VAR',      -- var
+    ENUM              = 'ENUM',     -- enum
   }
 }

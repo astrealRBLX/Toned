@@ -59,7 +59,7 @@ function InterpreterClass:visitLiteralExpr(expr: Types.ExprLiteral)
 end
 
 function InterpreterClass:visitEnumExpr(expr: Types.ExprEnum)
-  return expr.value
+  return expr
 end
 
 function InterpreterClass:visitVariable(expr: Types.Variable)
@@ -82,15 +82,20 @@ function InterpreterClass:visitAssignmentExpr(expr: Types.ExprAssignment)
   self.variables[expr.name.lexeme] = self:Evaluate(expr.value)
 end
 
-function InterpreterClass:visitSimpleSelectorExpr(expr: Types.ExprSimpleSelector)
-  return expr.value
+function InterpreterClass:visitNameSelect(expr: Types.SelectName)
+  return expr
 end
 
-function InterpreterClass:visitAncestrySelectorExpr(expr: Types.ExprAncestrySelector)
-  local parent: Types.Token = self:Evaluate(expr.parent)
-  local child: Types.Token = self:Evaluate(expr.child)
+function InterpreterClass:visitClassSelect(expr: Types.SelectClass)
+  return expr
+end
 
-  return {parent, child}
+function InterpreterClass:visitTraitSelect(expr: Types.SelectTrait)
+  return expr
+end
+
+function InterpreterClass:visitAncestrySelect(expr: Types.SelectAncestry)
+  return {self:Evaluate(expr.parent), self:Evaluate(expr.child)}
 end
 
 return Interpreter
