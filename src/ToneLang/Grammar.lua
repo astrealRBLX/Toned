@@ -17,10 +17,11 @@
 
   list              -> "[" unary ("," unary)* "]" ;
   unary             -> "-"? primary ;
-  primary           -> "true" | "false" | NUMBER | STRING | hexCode | enumeration ;
+  primary           -> "true" | "false" | NUMBER | STRING | hexCode | enumeration | context;
 
   hexCode           -> "#" IDENTIFIER ;
   enumeration       -> "enum" IDENTIFIER ;
+  context           -> "$" IDENTIFIER ("." IDENTIFIER)* ;
 
   ancestrySelector -> simpleSelector ">" (ancestrySelector | simpleSelector) ;
   simpleSelector   -> classSelector | attrSelector | nameSelector ;

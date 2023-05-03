@@ -114,6 +114,8 @@ function LexerClass:ScanToken()
     self:AddToken(Tokens.COMMA)
   elseif char == '>' then
     self:AddToken(Tokens.GREATER_THAN)
+  elseif char == '$' then
+    self:ResolveContext()
   elseif char == '#' then
     self:ResolveHexCode()
   elseif char == '"' then
@@ -240,6 +242,27 @@ function LexerClass:ResolveClassSelection()
       self.start + 1,
       self.position
     )
+  )
+end
+
+function LexerClass:ResolveContext()
+  local contextString = ''
+  local contextStart = self.start + 1
+
+  while isAlpha(self:Peek()) or self:Peek() == '.' do
+    self:Next()
+
+    if self:Match('.') then
+      contextString = contextString .. string.sub(self.source, contextStart, self.position)
+      contextStart = self.position + 1
+    end
+  end
+
+  contextString = contextString .. string.sub(self.source, contextStart, self.position)
+
+  self:AddToken(
+    Tokens.CONTEXT,
+    contextString
   )
 end
 

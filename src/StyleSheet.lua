@@ -44,11 +44,29 @@ local function resolveEnumType(property: string, enumValue: ToneLangTypes.Token)
   return Enum[property][enumValue.value]
 end
 
+local function resolveContext(contextToken: ToneLangTypes.Token, context: table?)
+  if context == nil then
+    error('No context was supplied to the style sheet.')
+  end
+
+  local ctxTable = string.split(contextToken.value, '.')
+  local value = context
+
+  local index = 1
+  while type(value) == 'table' do
+    value = value[ctxTable[index]]
+
+    index += 1
+  end
+
+  return value
+end
+
 local function resolveAttributeValues(attr: string)
   return string.split(attr, ',')
 end
 
-local function applyAssignments(assignments: { [string]: any }, descendant: Instance)
+local function applyAssignments(assignments: { [string]: any }, descendant: Instance, context: table?)
   for property, propValue in assignments do
     local propertyExists, propertyValue = pcall(function()
       return descendant[property]
@@ -68,6 +86,9 @@ local function applyAssignments(assignments: { [string]: any }, descendant: Inst
     -- Value is an enum; must resolve into Roblox enum
     elseif typeof(propValue) == 'table' and propValue.name == Tokens.ENUM then
       propValue = resolveEnumType(property, propValue)
+    -- Value is context; must locate proper value
+    elseif typeof(propValue) == 'table' and propValue.name == Tokens.CONTEXT then
+      propValue = resolveContext(propValue, context)
     end
 
     if typeof(propValue) ~= typeof(propertyValue) then
@@ -150,7 +171,7 @@ function StyleSheet:apply(value: string, applyTo: Instance, cleanupTasks: table)
   for _, style in interpreter.styleSheet do
     for _, desc in applyTo:GetDescendants() do
       validateSelectorTokens(style.selectors, desc, function(toAssign: Instance)
-        applyAssignments(style.assignments, toAssign)
+        applyAssignments(style.assignments, toAssign, self.context)
       end)
     end
   end
@@ -159,7 +180,7 @@ function StyleSheet:apply(value: string, applyTo: Instance, cleanupTasks: table)
     for _, style in interpreter.styleSheet do
       for _, desc in applyTo:GetDescendants() do
         validateSelectorTokens(style.selectors, desc, function(toAssign: Instance)
-          applyAssignments(style.assignments, toAssign)
+          applyAssignments(style.assignments, toAssign, self.context)
         end)
       end
     end
@@ -171,4 +192,13 @@ function StyleSheet:apply(value: string, applyTo: Instance, cleanupTasks: table)
   end)
 end
 
-return StyleSheet
+return setmetatable({}, {
+  __index = StyleSheet,
+  __call = function(_, context: table)
+    return setmetatable({
+      context = context,
+    }, {
+      __index = StyleSheet
+    })
+  end
+})

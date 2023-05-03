@@ -30,6 +30,7 @@ return {
     STRING            = 'STR',
     HEX               = 'HEX',      -- #FFFFFF
     ENUM              = 'ENUM',     -- enum Center
+    CONTEXT           = 'CONTEXT',  -- $Theme.Primary
 
     -- Selectors
     NAME_SELECT       = 'NAME',     -- @LoremIpsum or @(Lorem Ipsum)

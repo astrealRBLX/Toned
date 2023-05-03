@@ -36,6 +36,10 @@ export type ExprEnum = Expr & {
   value: Token,
 }
 
+export type ExprContext = Expr & {
+  value: Token,
+}
+
 export type Stmt = {
   accept: (stmtSelf: any, visitor: any) -> any,
 }

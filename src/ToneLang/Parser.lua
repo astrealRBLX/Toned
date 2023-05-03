@@ -175,6 +175,10 @@ function ParserClass:Primary()
   if self:Match(Tokens.ENUM) then
     return Expr.Enum(self:Previous())
   end
+
+  if self:Match(Tokens.CONTEXT) then
+    return Expr.Context(self:Previous())
+  end
 end
 
 function ParserClass:Consume(tokenName: string, message: string)

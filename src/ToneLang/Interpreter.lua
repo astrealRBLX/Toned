@@ -74,6 +74,10 @@ function InterpreterClass:visitUnaryExpr(expr: Types.ExprUnary)
   end
 end
 
+function InterpreterClass:visitContextExpr(expr: Types.ExprContext)
+  return expr.value
+end
+
 function InterpreterClass:visitAssignmentExpr(expr: Types.ExprAssignment)
   self.variables[expr.name.lexeme] = self:Evaluate(expr.value)
 end

@@ -44,6 +44,20 @@ function Expr.Enum(value: Types.Token): Types.ExprEnum
   return this
 end
 
+function Expr.Context(value: Types.Token): Types.ExprContext
+  local this = setmetatable({
+    ID = 'Expr.Context',
+    value = value,
+  }, {})
+
+  function this:accept(visitor)
+    return visitor:visitContextExpr(self)
+  end
+
+  return this
+end
+
+
 function Expr.SimpleSelector(value: Types.Token): Types.ExprSimpleSelector
   local this = setmetatable({
     ID = 'Expr.SimpleSelector',
